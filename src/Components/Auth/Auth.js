@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
+import {connect} from 'react-redux'
+import {loginUser, logoutUser} from '../../redDucks/reducer'
 
 class Auth extends Component {
     constructor(props){
@@ -23,6 +25,8 @@ class Auth extends Component {
     handleLoginUser = async () => {
         const {usernameInput : username, passwordInput : password} = this.state;
         const loginObj = await axios.post('/auth/login', {username, password}).catch(err => console.log('error on login ', err))
+        const {profileRef} = loginObj.data
+        this.props.loginUser({username, profileRef})
         console.log('log after axios login', loginObj)
     }
 
@@ -40,6 +44,8 @@ class Auth extends Component {
         return(
             <div>
                 <h1>Auth</h1>
+                <h3>User: {this.props.reduced.username} </h3>
+                <img alt='profile pic' src={this.props.reduced.profileRef} />
                 <div>
                     <input type='text' 
                     placeholder='username'
@@ -66,4 +72,15 @@ class Auth extends Component {
     }
 }
 
-export default Auth
+const mapDispatchToProps = {
+    loginUser,
+    logoutUser
+}
+
+const mapStateToProps = (reduxState) => {
+    return {
+        reduced: reduxState.reduced
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Auth)
